@@ -10,6 +10,8 @@ Learned As of 9th July:
 1. R and Github Integration.
 2. Main Git shell commands.
 
+This version is experimental.
+
 
 
 
