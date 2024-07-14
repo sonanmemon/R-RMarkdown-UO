@@ -123,6 +123,81 @@ year <-
 
 View(year)
 
+##
+
+base_url = "https://eugene.craigslist.org/search/sss?query=speakers&sort=rel&srchType=T"
+
+craiglist = read_html(base_url)
+
+View(craiglist)
+
+
+
+price  <-
+  craiglist %>% 
+  html_nodes(".price") %>%
+  html_text
+
+View(price)
+
+
+
+
+
+speakers <-
+  craiglist %>%
+  html_elements(".title, .price")
+
+
+speakers <- html_text(speakers) ## parse as text
+
+head(speakers, 20) ## show the first 20 entries
+
+
+
+
+speakers_merge <- as.data.frame(t(matrix(speakers, nrow=2)))
+
+
+View(speakers_merge)
+
+speakers_merge$location = "Eugene, OR"
+
+speakers_merge$time = "June/July 2024"
+
+
+
+names(speakers_merge) = c('Speaker-Name', 'Price', 'Location', 'Month')
+
+
+
+
+
+
+#ggplot(speakers_merge, aes(Price, Location)) +
+ # labs(title = 'Speakers for sale near Eugene, OR',
+  #     caption = 'Source: Craigslist',
+  #     x = 'Price', y = 'L') +
+  #theme_modern_rc()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
