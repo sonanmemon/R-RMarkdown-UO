@@ -24,6 +24,8 @@ library(listviewer)
 
 library(usethis)
 
+library(fredr)
+
 
 
 
@@ -124,6 +126,138 @@ fredobs %>%
 
 
 View(fredobs)
+
+library(fredr)
+
+# Application 3: 
+
+fredr(
+  series_id = "UNRATE",
+  observation_start = as.Date("1990-01-01"),
+  observation_end = as.Date("2000-01-01")
+)
+
+
+
+# Applicayion: Rugby Data. Hard to extract API end point:
+
+
+endpoint = "https://api.wr-rims-prod.pulselive.com/rugby/v3/rankings/mru?"
+
+
+rugby = fromJSON(endpoint)
+
+str(rugby)
+
+
+
+
+listviewer::jsonedit(rugby, mode = "view")
+
+head(rugby$entries$team)
+
+
+rankings =
+  bind_cols(
+    rugby$entries$team,
+    rugby$entries %>% select(pts:previousPos)
+  ) %>%
+  clean_names() %>%
+  select(-c(id, alt_id, annotations)) %>% ## These columns aren't adding much of interest
+  select(pos, pts, everything()) %>% ## Reorder remaining columns
+  as_tibble() ## "Enhanced" tidyverse version of a data frame
+
+rankings
+
+
+## We'll look at rankings around Jan 1st each year. I'll use 2004 as an
+## arbitrary start year and then proceed until the present year.
+
+start_date = ymd("2004-01-01")
+
+end_date = floor_date(today(), unit="years")
+
+dates = seq(start_date, end_date, by="years")
+
+## Get the nearest Monday to Jan 1st to coincide with rankings release dates.
+
+dates = floor_date(dates, "week", week_start = getOption("lubridate.week.start", 1))
+
+dates
+
+
+
+
+
+## First remove our existing variables. This is not really necessary, since R is smart enough
+## to distinguish named objects in functions from named objects in our global environment.
+## But I want to emphasise that we're creating new data here and avoid any confusion.
+
+rm(rugby, rankings, endpoint)
+
+## Now, create the function. I'll call it "rugby_scrape".
+
+rugby_scrape = 
+  function(x) {
+    endpoint = paste0("https://api.wr-rims-prod.pulselive.com/rugby/v3/rankings/mru?label=", x)
+    rugby = fromJSON(endpoint)
+    rankings =
+      bind_cols(
+        rugby$entries$team,
+        rugby$entries %>% select(matches:previousPos)
+      ) %>%
+      clean_names() %>%
+      mutate(date = x) %>% ## New column to keep track of the date 
+      select(-c(id, alt_id, annotations)) %>% ## These columns aren't adding much of interest
+      select(date, pos, pts, everything()) %>% ## Reorder remaining columns
+      as_tibble() ## "Enhanced" tidyverse version of a data frame
+    Sys.sleep(3) ## Be nice!
+    return(rankings)
+  }
+
+
+
+
+rankings_history =
+  lapply(dates, rugby_scrape) %>% ## Run the iteration
+  bind_rows() ## Bind the resulting list of data frames into a single data frame
+
+rankings_history
+
+
+
+
+
+
+teams = c("NZL", "RSA", "ENG", "JPN")
+team_cols = c("NZL"="black", "RSA"="#4DAF4A", "ENG"="#377EB8", "JPN" = "red")
+
+rankings_history %>%
+  ggplot(aes(x=date, y=pts, group=abbreviation)) +
+  geom_line(col = "grey") + 
+  geom_line(
+    data = rankings_history %>% filter(abbreviation %in% teams), 
+    aes(col=fct_reorder2(abbreviation, date, pts)),
+    lwd = 1
+  ) +
+  scale_color_manual(values = team_cols) +
+  labs(
+    x = "Date", y = "Points", 
+    title = "International rugby rankings", caption = "Source: World Rugby"
+  ) +
+  theme(legend.title = element_blank())
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
