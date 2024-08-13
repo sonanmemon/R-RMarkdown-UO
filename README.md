@@ -5,7 +5,7 @@
 - Source: R Course-Oregon-Grant-McDermott-EC-607
 - Purpose: Learning Advanced R.
 
-Learned As of 16th July:
+Learned As of 13th August, 2024:
 
 1. R and Github Integration.
 2. Main Git shell commands.
@@ -13,7 +13,7 @@ Learned As of 16th July:
 4. Data-Tables as a substitute as well as complement to dplyr commands.
 5. Completed Web-Scrapping Lecture 1 (HTML).
 6. Completed Lecture 2 (API's) of Web-Scrapping.
-7. Started Lecture on Regression.
+7. Completed Lecture on Regression.
 
 
 
