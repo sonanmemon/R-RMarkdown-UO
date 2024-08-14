@@ -162,7 +162,8 @@ stargazer(ols1, ols_ie,
           model.names=FALSE,
           star.char=NULL) #supresses the stars
 
-
+# or:
+  
 ## texreg: better suited for handling multiple types of regression: for e.g. with
 ## or without fixed effects.
 
