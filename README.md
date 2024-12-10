@@ -19,6 +19,8 @@ Stargazer, msummary and/or textreg.
 
 
 
+This version is experimental.
+
 
 
 
